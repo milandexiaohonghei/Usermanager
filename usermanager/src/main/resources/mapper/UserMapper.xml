@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.UserMapper">
+    <insert id="register">
+        insert into userinfo(`name`,username,password,sex,age,address,qq,email)
+        values (#{name},#{username},#{password},#{sex},#{age},#{address},#{qq},#{email})
+    </insert>
+
+    <insert id="add">
+        insert into userinfo(`name`,username,password,sex,age,address,qq,email
+        <if test="isadmin!=null">
+            ,isadmin
+        </if>
+        )
+        values (#{name},#{username},#{password},#{sex},#{age},#{address},#{qq},#{email}
+        <if test="isadmin!=null">
+            ,#{isadmin}
+        </if>
+        )
+    </insert>
+
+    <update id="update">
+        update userinfo
+        <set>
+            <if test="name!=null">
+                name=#{name},
+            </if>
+            <if test="sex!=null">
+                sex=#{sex},
+            </if>
+            <if test="age!=null">
+                age=#{age},
+            </if>
+            <if test="address!=null">
+                address=#{address},
+            </if>
+            <if test="qq!=null">
+                qq=#{qq},
+            </if>
+            <if test="email!=null">
+                email=#{email},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+    <delete id="del">
+        delete from userinfo where id in
+        <foreach collection="ids" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
+    <select id="login" resultType="com.example.demo.model.User">
+        select * from userinfo where username=#{username} and password=#{password}
+    </select>
+
+    <select id="getUser" resultType="com.example.demo.model.User">
+        select * from userinfo
+        <where>
+            <if test="name!=null">
+                and name=#{name}
+            </if>
+            <if test="address!=null">
+                and address=#{address}
+            </if>
+            <if test="email!=null">
+                and email=#{email}
+            </if>
+        </where>
+    </select>
+    <select id="getUserByPage" resultType="com.example.demo.model.User">
+        select * from userinfo
+        <where>
+            <if test="name!=null">
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test="address!=null">
+                and address=#{address}
+            </if>
+            <if test="email!=null">
+                and email=#{email}
+            </if>
+            <if test="isadmin!=null">
+                and isadmin=#{isadmin}
+            </if>
+        </where>
+        order by id desc
+        limit #{sindex},#{psize}
+    </select>
+
+    <select id="getUserCount" resultType="java.lang.Integer">
+        select count(*) from userinfo
+        <where>
+            <if test="name!=null">
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test="address!=null">
+                and address=#{address}
+            </if>
+            <if test="email!=null">
+                and email=#{email}
+            </if>
+            <if test="isadmin!=null">
+                and isadmin=#{isadmin}
+            </if>
+        </where>
+    </select>
+    <select id="getUserById" resultType="com.example.demo.model.User">
+        select * from userinfo
+        <where>
+            <if test="id!=null">
+                and id=#{id}
+            </if>
+        </where>
+    </select>
+
+</mapper>

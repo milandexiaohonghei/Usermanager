@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- 指定字符集 -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>用户信息管理系统</title>
+    <!-- 1. 导入CSS的全局样式 -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- 2. jQuery导入，建议使用1.9以上的版本 -->
+    <script src="js/jquery-2.1.0.min.js"></script>
+    <!-- 3. 导入bootstrap的js文件 -->
+    <!-- <script src="js/bootstrap.min.js"></script>-->
+    <style type="text/css">
+        td, th {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h3 style="text-align: center;margin-bottom: 50px;">用户信息列表</h3>
+    <div style="float: left;">
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="ipt_name">姓名</label>
+                <input name="name" type="text" class="form-control" id="ipt_name">
+            </div>
+            <div class="form-group">
+                <label for="ipt_address">籍贯</label>
+                <input name="address" type="text" class="form-control" id="ipt_address">
+            </div>
+            <div class="form-group">
+                <label for="ipt_email">邮箱</label>
+                <input name="email" type="email" class="form-control" id="ipt_email">
+            </div>
+            <button id="submit1" type="button" class="btn btn-default" onclick="oncli()">查询</button>
+        </form>
+    </div>
+    <div style="float: right;margin-bottom: 15px">
+        <a class="btn btn-primary" href="add.html">添加用户</a>
+        <a id="delete" class="btn btn-primary" href="javascript:del()">删除选中</a>
+    </div>
+    <table border="1" class="table table-bordered table-hover">
+        <tr class="success">
+            <th>选择</th>
+            <th>编号</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>年龄</th>
+            <th>籍贯</th>
+            <th>QQ</th>
+            <th>邮箱</th>
+            <th>超管</th>
+            <th>操作</th>
+        </tr>
+        <tbody id="info">
+        <!--        <tr>-->
+        <!--            <th>-->
+        <!--                <input id="1" type="checkbox">-->
+        <!--            </th>-->
+        <!--            <th>1</th>-->
+        <!--            <th>张三</th>-->
+        <!--            <th>男</th>-->
+        <!--            <th>18</th>-->
+        <!--            <th>北京</th>-->
+        <!--            <th>295628068</th>-->
+        <!--            <th>295628068@qq.com</th>-->
+        <!--            <th>是</th>-->
+        <!--            <th>-->
+        <!--                <a class="btn btn-default btn-sm" href="update.hytml?id=">修改</a>-->
+        <!--                <a class="btn btn-default btn-sm" href="javascript:void(0);">删除</a>-->
+        <!--            </th>-->
+        <!--        </tr>-->
+        <!--        <tr>-->
+        <!--            <th>-->
+        <!--                <input id="2" type="checkbox">-->
+        <!--            </th>-->
+        <!--            <th>2</th>-->
+        <!--            <th>李四</th>-->
+        <!--            <th>男</th>-->
+        <!--            <th>18</th>-->
+        <!--            <th>西安</th>-->
+        <!--            <th>295628068</th>-->
+        <!--            <th>295628068@qq.com</th>-->
+        <!--            <th>否</th>-->
+        <!--            <th>-->
+        <!--                <a class="btn btn-default btn-sm" href="update.hytml?id=">修改</a>-->
+        <!--                <a class="btn btn-default btn-sm" href="javascript:void(0);">删除</a>-->
+        <!--            </th>-->
+        <!--        </tr>-->
+        </tbody>
+    </table>
+    <div>
+        <nav aria-label="Page navigation">
+            <ul id="all" class="pagination">
+                <!--                <li class="active"><a href="javascript:void(0);">1</a></li>-->
+                <!--                <li><a href="javascript:void(0);">2</a></li>-->
+                <!--                <li><a href="javascript:void(0);">3</a></li>-->
+                <!--                <li><a href="javascript:void(0);" aria-label="Next">-->
+                <!--                    <span aria-hidden="true">&raquo;</span></a>-->
+                <!--                </li>-->
+                <!--                <span style="font-size: 20px;margin-left: 10px;"> 共 10 条记录，共 1 页-->
+                <!--                  </span>-->
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    // 每页显示条数
+    var psize = 5;
+    // 当前页码
+    var cpage = 1;
+    // 查询条件
+    var name = '';
+    var address = '';
+    var email = '';
+
+    // 获取后台数据
+    function getData(cpage, name, address, email) {
+        jQuery.getJSON("/user/getlist", {
+            "cpage": cpage,
+            "psize": psize,
+            "name": name,
+            "address": address,
+            "email": email
+        }, function (data) {
+            if (data != null && data.status == 0) {
+                // 展示列表
+                var listHTML = "";
+                for (var i = 0; i < data.data.list.length; i++) {
+                    var item = data.data.list[i];
+                    listHTML += '<tr>\n' +
+                        '            <th>\n' +
+                        '                <input id="' + item.id + '" type="checkbox">\n' +
+                        '            </th>\n' +
+                        '            <th>' + item.id + '</th>\n' +
+                        '            <th>' + item.name + '</th>\n' +
+                        '            <th>' + item.sex + '</th>\n' +
+                        '            <th>' + item.age + '</th>\n' +
+                        '            <th>' + item.address + '</th>\n' +
+                        '            <th>' + item.qq + '</th>\n' +
+                        '            <th>' + item.email + '</th>\n' +
+                        '            <th>' + (item.isadmin == 0 ? "否" : "是") + '</th>\n' +
+                        '            <th>\n' +
+                        '                <a class="btn btn-default btn-sm" href="update.html?id=' +
+                        item.id + '">修改</a>\n' +
+                        '                <a class="btn btn-default btn-sm" href="javascript:delById(' +
+                        item.id + ')">删除</a>\n' +
+                        '            </th>\n' +
+                        '        </tr>';
+                }
+                jQuery("#info").html(listHTML);
+                // 设置分页
+                var plist = "";
+                if (parseInt(data.data.tpage) > 1) {
+                    for (var i = 1; i <= data.data.tpage; i++) {
+                        if (i == cpage) {
+                            plist += ' <li class="active"><a href="javascript:getData(' + i
+                                + ',\'' + name + '\',\'' + address + '\',\'' + email + '\');">' +
+                                i + '</a></li>';
+                        } else {
+                            plist += ' <li><a href="javascript:getData(' + i
+                                + ',\'' + name + '\',\'' + address + '\',\'' + email + '\');">' +
+                                i + '</a></li>';
+                        }
+                    }
+                    plist += '<li><a href="javascript:getData(' + (cpage + 1)
+                        + ',\'' + name + '\',\'' + address + '\',\'' + email + '\');" aria-label="Next">\n' +
+                        '                    <span aria-hidden="true">&raquo;</span></a>\n' +
+                        '                </li>' +
+                        '<span style="font-size: 20px;margin-left: 10px;"> 共 ' +
+                        data.data.tcount + ' 条记录，共 ' +
+                        data.data.tpage
+                        + ' 页\n' + '                  </span>';
+                }
+                jQuery("#all").html(plist);
+            }
+        });
+    }
+
+    // 初次加载
+    getData(cpage, name, address, email);
+
+    // 点击查询按钮
+    function oncli() {
+        name = jQuery("#ipt_name").val();
+        address = jQuery("#ipt_address").val();
+        email = jQuery("#ipt_email").val();
+        cpage = 1;
+        getData(cpage, name, address, email);
+    }
+
+    // 多个删除
+    function del() {
+        if (confirm("确认删除")) {
+            // 待删除 id 集合
+            var ids = "";
+            jQuery("#info tr").each(
+                function (i) {
+                    var cbx = jQuery(this).find("th:first").find("input");
+                    if (cbx.prop("checked")) {
+                        ids += (cbx.attr("id") + ",");
+                    }
+                }
+            );
+            if (ids != "") {
+                // 请求后端进行删除操作
+                jQuery.getJSON("/user/del", {"ids": ids}, function (data) {
+                    if (data != null && data.status == 0 && data.data > 0) {
+                        alert("恭喜:删除成功!");
+                        location.href = location.href;
+                    } else {
+                        alert("抱歉:操作失败,请重试!");
+                    }
+                });
+            }
+        }
+    }
+
+    // 单个删除
+    function delById(id) {
+        if (confirm("确认删除")) {
+            // 请求后端进行删除操作
+            jQuery.getJSON("/user/del", {"ids": id}, function (data) {
+                if (data != null && data.status == 0 && data.data > 0) {
+                    alert("恭喜:删除成功!");
+                    location.href = location.href;
+                } else {
+                    alert("抱歉:操作失败,请重试!");
+                }
+            });
+        }
+    }
+</script>
+</html>
